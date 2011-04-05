@@ -3,4 +3,8 @@
 require 'rpm'
 require 'rpm/cli'
 
-RPM::CLI.start
+begin
+  RPM::CLI.start
+rescue RPM::Builder::TemplateError
+  puts $!.message
+end

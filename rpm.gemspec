@@ -4,7 +4,7 @@ require "rpm/version"
 
 Gem::Specification.new do |s|
   s.name        = "rpm"
-  s.version     = Rpm::VERSION
+  s.version     = RPM::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Colin MacKenzie IV"]
   s.email       = ["sinisterchipmunk@gmail.com"]
@@ -13,8 +13,6 @@ Gem::Specification.new do |s|
   s.description = %q{Generates RPM packages out of a gem or Rails project}
 
   s.add_dependency "thor"
-  s.add_dependency "activesupport"
-  s.add_dependency "i18n"
 
   s.rubyforge_project = "rpm"
 

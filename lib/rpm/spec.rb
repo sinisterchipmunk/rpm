@@ -1,6 +1,5 @@
 require 'erb'
 require 'rubygems'
-require 'active_support/core_ext'
 require 'rbconfig'
 
 module RPM
@@ -14,7 +13,7 @@ module RPM
 
 		def tag(name_or_sym, value = :_unassigned)
 			value = send(name_or_sym) if value == :_unassigned && name_or_sym.kind_of?(Symbol)
-			name_or_sym = name_or_sym.to_s.camelize
+			name_or_sym = name_or_sym.to_s.gsub(/(^|_)(.)/) { |m| $~[2].upcase }
 			if !value || (value.respond_to?(:empty?) && value.empty?)
 				# see if it's required; if so, fill one in
 				case name_or_sym

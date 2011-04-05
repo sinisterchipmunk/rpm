@@ -3,14 +3,22 @@ require 'tmpdir'
 
 module RPM
 	class Builder
+      class TemplateError < StandardError; end
+
 		include FileUtils
 		include RPM
 
 		attr_reader :config
 
+		def system(*args)
+			puts args.join(" ")
+			Kernel.system(*args)
+		end
+
 		def initialize(spec_path)
 			if !File.exist?(spec_path)
-				raise "Could not find spec template #{spec_path}! Did you `ruby-rpm install` first?"
+				raise RPM::Builder::TemplateError,
+                      "Could not find spec template #{spec_path}! Did you `ruby-rpm install` first?"
 			end
 
 			@spec_path = spec_path

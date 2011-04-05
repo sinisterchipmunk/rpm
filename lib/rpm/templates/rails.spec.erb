@@ -5,7 +5,7 @@
 <%=tag :url%>
 <%=tag :requires, runtime_dependencies%>
 <%=tag :requires, rpm_dependencies%>
-Release: 1
+Release: <%=increment_release_number%>
 Group: Ruby/RubyGems
 Source: %{name}-%{version}.tar.gz
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-XXXXXX)
@@ -20,13 +20,14 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-XXXXXX)
 
 %prep
 cur=`pwd`
-cd $RPM_SOURCE_DIR
+mkdir -p $RPM_SOURCE_DIR/rails
+cd $RPM_SOURCE_DIR/rails
 <%project_files.each do |file|%>
-  cp -r <%=file%> $RPM_SOURCE_DIR/<%=File.basename(file)%>
+  cp -r <%=file%> $RPM_SOURCE_DIR/rails/<%=File.basename(file)%>
 <%end%>
 # bundler adds "-rbundler/setup" which is no good for us, so we need to reset RUBYOPT
 RUBYOPT= \
-	BUNDLE_GEMFILE=$RPM_SOURCE_DIR/Gemfile \
+	BUNDLE_GEMFILE=$RPM_SOURCE_DIR/rails/Gemfile \
 	bundle package
 cd $cur
 %setup -q
@@ -35,7 +36,7 @@ cd $cur
 cur=`pwd`
 cd $RPM_SOURCE_DIR
 mkdir -p %{buildroot}/%{_rails_root}
-cp -r $RPM_SOURCE_DIR/* %{buildroot}/%{_rails_root}
+cp -r $RPM_SOURCE_DIR/rails/* %{buildroot}/%{_rails_root}
 RUBYOPT= \
 	BUNDLE_GEMFILE=%{buildroot}/%{_rails_root}/Gemfile \
 	bundle install --local --path vendor/gems

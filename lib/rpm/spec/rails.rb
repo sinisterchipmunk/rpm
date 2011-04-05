@@ -20,10 +20,20 @@ class RPM::Spec::Rails < RPM::Spec
 		self.arch = ::Config::CONFIG['arch']
 	end
 
+	def increment_release_number
+		release = '1'
+		if File.exist?(release_path = File.join(config.base_path, "RELEASE"))
+			release = File.read(release_path)
+		end
+		release = release.to_i + 1
+		File.open(release_path, "w") { |f| f.print release.to_s }
+		release
+	end
+
 	private
 	def dependency_list(deps)
 		deps.collect do |dep|
-			if dep.requirements.blank?
+			if dep.requirements.nil? || dep.requirements == ""
 				"#{config.name_prefix}#{dep.name}"
 			else
 				"#{config.name_prefix}#{dep.name} #{reformat_requirement(dep.requirements)}"
