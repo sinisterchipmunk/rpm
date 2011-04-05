@@ -1,0 +1,67 @@
+<%=tag :name%>
+<%=tag :version%>
+<%=tag :summary%>
+<%=tag :license, licenses.join("; ")%>
+<%=tag :url%>
+<%=tag :requires, runtime_dependencies%>
+<%=tag :requires, rpm_dependencies%>
+Release: 1
+Group: Ruby/RubyGems
+Source: %{name}-%{version}.tar.gz
+BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-XXXXXX)
+
+%description
+<%=description%>
+
+# definitions
+%define _ruby /opt/ruby-enterprise
+%define _bin %{_ruby}/bin
+%define _rails_root /u/rails/<%=name%>
+
+%prep
+cur=`pwd`
+cd $RPM_SOURCE_DIR
+<%project_files.each do |file|%>
+  cp -r <%=file%> $RPM_SOURCE_DIR/<%=File.basename(file)%>
+<%end%>
+# bundler adds "-rbundler/setup" which is no good for us, so we need to reset RUBYOPT
+RUBYOPT= \
+	BUNDLE_GEMFILE=$RPM_SOURCE_DIR/Gemfile \
+	bundle package
+cd $cur
+%setup -q
+
+%build
+cur=`pwd`
+cd $RPM_SOURCE_DIR
+mkdir -p %{buildroot}/%{_rails_root}
+cp -r $RPM_SOURCE_DIR/* %{buildroot}/%{_rails_root}
+RUBYOPT= \
+	BUNDLE_GEMFILE=%{buildroot}/%{_rails_root}/Gemfile \
+	bundle install --local --path vendor/gems
+cd $cur
+
+%install
+
+%files
+%defattr(-,root,root,-)
+%{_rails_root}
+
+%clean
+rm -rf %{buildroot}
+
+# pre-installation
+%pre
+
+# post-installation
+%post
+
+# pre-uninstallation
+%preun
+
+# post-uninstallation
+%postun
+
+# changelog
+%changelog
+

@@ -1,0 +1,51 @@
+<%=tag :name%>
+<%=tag :version%>
+<%=tag :summary%>
+<%=tag :license, licenses.join("; ")%>
+<%=tag :url%>
+<%=tag :requires, runtime_dependencies%>
+<%=tag :requires, rpm_dependencies%>
+Release: 1
+Group: Ruby/RubyGems
+Source: %{name}-%{version}.tar.gz
+BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-XXXXXX)
+
+%description
+<%=description%>
+
+# definitions
+%define _ruby /opt/ruby-enterprise
+%define _bin %{_ruby}/bin
+%define _gem_root %{_ruby}/lib/ruby/gems/1.8
+
+%prep
+mv <%=File.expand_path(Gem::Builder.new(gemspec).build, Dir.pwd)%> $RPM_SOURCE_DIR/%{name}-%{version}.gem
+%setup -q
+
+%build
+gem install --local --ignore-dependencies --no-ri --no-rdoc --install-dir=%{buildroot}/%{_gem_root} $RPM_SOURCE_DIR/%{name}-%{version}.gem
+
+%install
+
+%files
+%defattr(-,root,root,-)
+%{_gem_root}
+
+%clean
+rm -rf %{buildroot}
+
+# pre-installation
+%pre
+
+# post-installation
+%post
+
+# pre-uninstallation
+%preun
+
+# post-uninstallation
+%postun
+
+# changelog
+%changelog
+

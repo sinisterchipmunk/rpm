@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'rpm'
+require 'rpm/cli'
+
+RPM::CLI.start
