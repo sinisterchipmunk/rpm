@@ -13,10 +13,18 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-XXXXXX)
 %description
 <%=description%>
 
-# definitions
+# ruby definitions
 %define _ruby /opt/ruby-enterprise
-%define _bin %{_ruby}/bin
+%define _rake %{_ruby}/bin/rake
+
+# rails definitions
 %define _rails_root /u/rails/<%=name%>
+%define _rails_env production
+%define _rails_config %{_sysconfdir}/rails/<%=name%>
+
+# misc definitions
+%define _rakefile %{_rails_root}/Rakefile
+%define _db_migrate db:migrate
 
 %prep
 cur=`pwd`
@@ -28,7 +36,7 @@ cd $RPM_SOURCE_DIR/rails
 # bundler adds "-rbundler/setup" which is no good for us, so we need to reset RUBYOPT
 RUBYOPT= \
 	BUNDLE_GEMFILE=$RPM_SOURCE_DIR/rails/Gemfile \
-	bundle package
+	bundle package --without test cucumber development
 cd $cur
 %setup -q
 
@@ -43,10 +51,15 @@ RUBYOPT= \
 cd $cur
 
 %install
+%{__mkdir} -p %{buildroot}/%{_rails_config}
+%{__cp} %{buildroot}/%{_rails_config}/database.yml
+rm %{buildroot}/%{_rails_root}/config/database.yml
+/bin/ln -fs %{_rails_config}/database.yml %{buildroot}/%{_rails_root}/config/database.yml
 
 %files
 %defattr(-,root,root,-)
 %{_rails_root}
+%config(noreplace) %{_rails_config}/database.yml
 
 %clean
 rm -rf %{buildroot}
@@ -56,6 +69,7 @@ rm -rf %{buildroot}
 
 # post-installation
 %post
+RAILS_ENV=%{_rails_env} %{_rake} -f %{_rakefile} %{_db_migrate}
 
 # pre-uninstallation
 %preun
