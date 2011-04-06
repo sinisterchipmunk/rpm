@@ -39,7 +39,7 @@ mkdir -p %{buildroot}/%{_rails_root}
 cp -r $RPM_SOURCE_DIR/rails/* %{buildroot}/%{_rails_root}
 RUBYOPT= \
 	BUNDLE_GEMFILE=%{buildroot}/%{_rails_root}/Gemfile \
-	bundle install --local --path vendor/gems
+	bundle install --local --path vendor/gems --without test cucumber development
 cd $cur
 
 %install
