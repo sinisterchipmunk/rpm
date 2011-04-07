@@ -1,0 +1,58 @@
+= rpm
+
+Generates RPM packages from Ruby gems and Rails projects.
+
+== installation
+
+=== via git
+
+  git clone git://github.com/sinisterchipmunk/rpm.git
+  cd rpm
+  rake install
+
+=== via gem
+
+  gem install rpm
+
+== usage
+
+  # set up the ruby-rpm template
+  ruby-rpm install
+  
+  # edit the ruby-rpm RPM template to your liking
+  vi ./rpm/application.spec.erb
+  
+  # generate the RPM
+  ruby-rpm
+
+== output
+
+The RPM generator will first generate the application spec from your spec template. This is in:
+  rpm/application.spec
+
+Next, it will attempt to build the RPM. The package is built in:
+  rpm/build
+
+Note that the build directory is not emptied upon completion. However, it _is_ emptied prior to generating a new RPM.
+
+After the build, all resultant RPMs (except source RPMs) are copied into:
+  rpm/pkg
+
+In Rails projects, the RPM generator will create or update a file called:
+  rpm/RELEASE
+
+This is a single-number revision which is incremented every time you build an RPM. You can modify this file directly to start at a specific release number. In Rails projects, the version number of the RPM is always 1.0 (though you can change this by modifying the spec template -- see above).
+
+For Ruby gems, the RPM version is set to the gem version as found in the gemspec file. In fact, most of the RPM information comes directly from the gemspec file. By default, gem RPMs are prefixed with "rubygem-". See the API documentation for how to modify this, or just hard-code the gem name in the spec template yourself.
+
+== other notes
+
+Note that for gems, the RPM generator will simply use the dependencies listed in the gemspec. It won't actually build those dependencies, however, so you'll need to build a separate RPM for each gem depended upon.
+
+For Rails projects, the generator assumes you are using Bundler. If not, you'll need to make the appropriate changes to your spec template manually.
+
+For Rails projects, by default, the spec template will package and install the bundle without _development_, _test_, and _cucumber_ groups (that is, just "production" gems for the vast majority of Rails apps). If you want an RPM for a test environment, alter the spec to taste.
+
+This RPM generator has been tested exclusively in my own dev and prod environments. Your mileage may vary. I'm perfectly happy to address any shortcomings (just open an issue) but be aware that I may need your help to test in environments I can't easily match.
+
+Enjoy!
